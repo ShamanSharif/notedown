@@ -14,6 +14,10 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  String noteDateView(DateTime dateTime) {
+    return "Jun 18, 23";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,16 +54,57 @@ class _HomeViewState extends State<HomeView> {
   Widget notesWidget(List<Note> notes) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          for (Note note in notes)
-            InkWell(
-              onTap: () {},
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              child: Text(note.name),
-            )
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            for (Note note in notes)
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.black12,
+                    ),
+                  ),
+                ),
+                child: InkWell(
+                  onTap: () {},
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  child: Row(
+                    children: [
+                      RotatedBox(
+                        quarterTurns: 3,
+                        child: Text(noteDateView(note.createdOn)),
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            note.name,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            note.content ?? "",
+                            maxLines: 3,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              )
+          ],
+        ),
       ),
     );
   }
