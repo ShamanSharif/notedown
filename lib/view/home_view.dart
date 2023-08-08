@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:notedown/view/note_viewer.dart';
 
 import '../controller/note_controller.dart';
 import '../model/note.dart';
@@ -23,7 +25,7 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text("NoteDown"),
+        title: const Text("NoteDown"),
       ),
       body: SafeArea(
         child: ValueListenableBuilder<Box<Note>>(
@@ -34,19 +36,77 @@ class _HomeViewState extends State<HomeView> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return const CreateNote();
-              },
-            ),
-          );
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButtonLocation: ExpandableFab.location,
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //         builder: (context) {
+      //           return const CreateNote();
+      //         },
+      //       ),
+      //     );
+      //   },
+      //   tooltip: 'Add Note',
+      //   child: const Icon(Icons.add),
+      // ),
+      floatingActionButton: ExpandableFab(
+        type: ExpandableFabType.up,
+        distance: 70,
+        openButtonBuilder: RotateFloatingActionButtonBuilder(
+          child: const Icon(
+            Icons.add,
+            size: 40,
+          ),
+          fabSize: ExpandableFabSize.regular,
+        ),
+        closeButtonBuilder: FloatingActionButtonBuilder(
+          size: 70,
+          builder: (BuildContext context, void Function()? onPressed,
+              Animation<double> progress) {
+            return IconButton(
+              onPressed: onPressed,
+              icon: const Icon(
+                Icons.close,
+                size: 40,
+              ),
+            );
+          },
+        ),
+        children: [
+          FloatingActionButton.extended(
+            label: const Text("MarkDown"),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const CreateNote(
+                      isRichText: false,
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+          FloatingActionButton.extended(
+            heroTag: null,
+            label: const Text("Rich Text"),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const CreateNote(
+                      isRichText: true,
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -58,26 +118,36 @@ class _HomeViewState extends State<HomeView> {
         child: Column(
           children: [
             for (Note note in notes)
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.black12,
+              InkWell(
+                onTap: () {
+                  print("TAP TAP TAP");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return NoteViewer(note: note);
+                      },
+                    ),
+                  );
+                },
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.black12,
+                      ),
                     ),
                   ),
-                ),
-                child: InkWell(
-                  onTap: () {},
-                  highlightColor: Colors.transparent,
-                  splashColor: Colors.transparent,
                   child: Row(
                     children: [
                       RotatedBox(
                         quarterTurns: 3,
                         child: Text(noteDateView(note.createdOn)),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 20,
                       ),
                       Column(
@@ -85,12 +155,12 @@ class _HomeViewState extends State<HomeView> {
                         children: [
                           Text(
                             note.name,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           Text(
