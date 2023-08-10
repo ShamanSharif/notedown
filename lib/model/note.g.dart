@@ -23,13 +23,14 @@ class NoteAdapter extends TypeAdapter<Note> {
       updatedOn: fields[3] as DateTime,
       colorIndex: fields[4] as int,
       isMarkDown: fields[5] as bool,
+      archived: fields[6] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Note obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class NoteAdapter extends TypeAdapter<Note> {
       ..writeByte(4)
       ..write(obj.colorIndex)
       ..writeByte(5)
-      ..write(obj.isMarkDown);
+      ..write(obj.isMarkDown)
+      ..writeByte(6)
+      ..write(obj.archived);
   }
 
   @override

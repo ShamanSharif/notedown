@@ -16,6 +16,8 @@ class Note extends HiveObject {
   int colorIndex;
   @HiveField(5)
   bool isMarkDown;
+  @HiveField(6)
+  bool? archived;
 
   Note({
     required this.name,
@@ -24,10 +26,21 @@ class Note extends HiveObject {
     required this.updatedOn,
     this.colorIndex = 0,
     this.isMarkDown = false,
+    this.archived = false,
   });
 
   @override
   String toString() {
     return name;
+  }
+
+  void archive() {
+    archived = true;
+    save();
+  }
+
+  void restore() {
+    archived = false;
+    save();
   }
 }

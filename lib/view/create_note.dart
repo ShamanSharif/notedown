@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:ionicons/ionicons.dart';
@@ -41,15 +43,27 @@ class _CreateNoteState extends State<CreateNote> {
 
   _saveToNote() {
     final noteBox = Boxes.getNotes();
-    noteBox.add(
-      Note(
-        createdOn: DateTime.now(),
-        updatedOn: DateTime.now(),
-        name: titleController.text,
-        content: contentController.text,
-        isMarkDown: !isRichText,
-      ),
-    );
+    if (isRichText) {
+      noteBox.add(
+        Note(
+          createdOn: DateTime.now(),
+          updatedOn: DateTime.now(),
+          name: titleController.text,
+          content: jsonEncode(quillController.document.toDelta().toJson()),
+          isMarkDown: !isRichText,
+        ),
+      );
+    } else {
+      noteBox.add(
+        Note(
+          createdOn: DateTime.now(),
+          updatedOn: DateTime.now(),
+          name: titleController.text,
+          content: contentController.text,
+          isMarkDown: !isRichText,
+        ),
+      );
+    }
   }
 
   @override

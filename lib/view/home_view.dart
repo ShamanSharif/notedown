@@ -37,20 +37,6 @@ class _HomeViewState extends State<HomeView> {
         ),
       ),
       floatingActionButtonLocation: ExpandableFab.location,
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //         builder: (context) {
-      //           return const CreateNote();
-      //         },
-      //       ),
-      //     );
-      //   },
-      //   tooltip: 'Add Note',
-      //   child: const Icon(Icons.add),
-      // ),
       floatingActionButton: ExpandableFab(
         type: ExpandableFabType.up,
         distance: 70,
@@ -118,61 +104,64 @@ class _HomeViewState extends State<HomeView> {
         child: Column(
           children: [
             for (Note note in notes)
-              InkWell(
-                onTap: () {
-                  print("TAP TAP TAP");
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return NoteViewer(note: note);
-                      },
-                    ),
-                  );
-                },
-                highlightColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.black12,
+              if (!(note.archived ?? true))
+                InkWell(
+                  onTap: () {
+                    print("TAP TAP TAP");
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return NoteViewer(note: note);
+                        },
+                      ),
+                    );
+                  },
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.black12,
+                        ),
                       ),
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      RotatedBox(
-                        quarterTurns: 3,
-                        child: Text(noteDateView(note.createdOn)),
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            note.name,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
+                    child: Row(
+                      children: [
+                        RotatedBox(
+                          quarterTurns: 3,
+                          child: Text(noteDateView(note.createdOn)),
+                        ),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              note.name,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            note.content ?? "",
-                            maxLines: 3,
-                          ),
-                        ],
-                      ),
-                    ],
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              note.archived ?? true
+                                  ? "Archived"
+                                  : "Not Archived",
+                              maxLines: 3,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              )
           ],
         ),
       ),
