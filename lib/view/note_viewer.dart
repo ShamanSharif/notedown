@@ -78,6 +78,7 @@ class _NoteViewerState extends State<NoteViewer> {
           ? Markdown(data: note.content!)
           : quill.QuillEditor.basic(
               controller: _controller,
+              autoFocus: false,
               readOnly: true,
             ),
     );
