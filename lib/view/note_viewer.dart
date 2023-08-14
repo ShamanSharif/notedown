@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:notedown/view/create_note.dart';
 
 import '../model/note.dart';
 
@@ -39,6 +40,19 @@ class _NoteViewerState extends State<NoteViewer> {
     Navigator.pop(context);
   }
 
+  void editNote(Note note) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateNote(
+          note: note,
+          isRichText: !note.isMarkDown,
+        ),
+      ),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,6 +77,11 @@ class _NoteViewerState extends State<NoteViewer> {
             ],
             onSelected: (value) {
               switch (value) {
+                case 1:
+                  {
+                    editNote(note);
+                    break;
+                  }
                 case 2:
                   {
                     archiveNote();

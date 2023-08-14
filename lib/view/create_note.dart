@@ -34,7 +34,10 @@ class _CreateNoteState extends State<CreateNote> {
     titleController.text = title;
     isRichText = widget.isRichText;
     note = widget.note;
-    if (note == null) _saveToNote();
+    if (note == null)
+      _saveToNote();
+    else
+      _connectController();
     titleController.addListener(_updateNote);
     contentController.addListener(_updateNote);
     quillController.addListener(_updateNote);
@@ -71,6 +74,20 @@ class _CreateNoteState extends State<CreateNote> {
       );
       noteBox.add(newNote);
       setState(() => note = newNote);
+    }
+  }
+
+  _connectController() {
+    print("Connecting Controller");
+    titleController.text = note!.name;
+    if (note!.isMarkDown) {
+      print("MarkDown Controller");
+      contentController.text = note!.content ?? "";
+    } else {
+      print("RichText Controller");
+      quillController.document = Document.fromJson(
+        jsonDecode(note!.content!),
+      );
     }
   }
 
