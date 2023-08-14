@@ -43,4 +43,15 @@ class Note extends HiveObject {
     archived = false;
     save();
   }
+
+  void update(
+    String name,
+    String? content,
+    DateTime updatedOn,
+  ) {
+    this.name = name;
+    this.content = content;
+    this.updatedOn = updatedOn;
+    save();
+  }
 }

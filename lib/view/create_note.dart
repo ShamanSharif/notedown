@@ -7,9 +7,11 @@ import 'package:notedown/controller/note_controller.dart';
 import 'package:notedown/model/note.dart';
 
 class CreateNote extends StatefulWidget {
+  final Note? note;
   final bool isRichText;
   const CreateNote({
     super.key,
+    this.note,
     this.isRichText = false,
   });
 
@@ -23,6 +25,7 @@ class _CreateNoteState extends State<CreateNote> {
   final QuillController quillController = QuillController.basic();
 
   late bool isRichText;
+  late Note? note;
 
   String title = "Untitled Document";
 
@@ -30,6 +33,11 @@ class _CreateNoteState extends State<CreateNote> {
   void initState() {
     titleController.text = title;
     isRichText = widget.isRichText;
+    note = widget.note;
+    if (note == null) _saveToNote();
+    titleController.addListener(_updateNote);
+    contentController.addListener(_updateNote);
+    quillController.addListener(_updateNote);
     super.initState();
   }
 
@@ -44,26 +52,50 @@ class _CreateNoteState extends State<CreateNote> {
   _saveToNote() {
     final noteBox = Boxes.getNotes();
     if (isRichText) {
-      noteBox.add(
-        Note(
-          createdOn: DateTime.now(),
-          updatedOn: DateTime.now(),
-          name: titleController.text,
-          content: jsonEncode(quillController.document.toDelta().toJson()),
-          isMarkDown: !isRichText,
-        ),
+      Note newNote = Note(
+        createdOn: DateTime.now(),
+        updatedOn: DateTime.now(),
+        name: titleController.text,
+        content: jsonEncode(quillController.document.toDelta().toJson()),
+        isMarkDown: !isRichText,
+      );
+      noteBox.add(newNote);
+      setState(() => note = newNote);
+    } else {
+      Note newNote = Note(
+        createdOn: DateTime.now(),
+        updatedOn: DateTime.now(),
+        name: titleController.text,
+        content: contentController.text,
+        isMarkDown: !isRichText,
+      );
+      noteBox.add(newNote);
+      setState(() => note = newNote);
+    }
+  }
+
+  _updateNote() {
+    print("Note Update Called");
+    if (note == null) {
+      print("Note Is Null");
+      return;
+    }
+    if (note!.isMarkDown) {
+      print("MarkDown");
+      note!.update(
+        titleController.text,
+        contentController.text,
+        DateTime.now(),
       );
     } else {
-      noteBox.add(
-        Note(
-          createdOn: DateTime.now(),
-          updatedOn: DateTime.now(),
-          name: titleController.text,
-          content: contentController.text,
-          isMarkDown: !isRichText,
-        ),
+      print("RichText");
+      note!.update(
+        titleController.text,
+        jsonEncode(quillController.document.toDelta().toJson()),
+        DateTime.now(),
       );
     }
+    print("Note Is Updated");
   }
 
   @override
