@@ -58,7 +58,7 @@ class _NoteViewerState extends State<NoteViewer> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("NoteDown"),
+        title: Text(note.name),
         actions: [
           PopupMenuButton(
             icon: const Icon(

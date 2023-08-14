@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notedown/view/note_viewer.dart';
 
@@ -105,60 +106,87 @@ class _HomeViewState extends State<HomeView> {
           children: [
             for (Note note in notes)
               if (!(note.archived ?? true))
-                InkWell(
-                  onTap: () {
-                    print("TAP TAP TAP");
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return NoteViewer(note: note);
+                Slidable(
+                  endActionPane: ActionPane(
+                    motion: const ScrollMotion(),
+                    children: [
+                      SlidableAction(
+                        // An action can be bigger than the others.
+
+                        onPressed: (val) {
+                          note.archive();
                         },
+                        backgroundColor: Colors.grey.shade900,
+                        foregroundColor: Colors.white,
+                        icon: Icons.archive,
+                        label: 'Archive',
                       ),
-                    );
-                  },
-                  highlightColor: Colors.transparent,
-                  splashColor: Colors.transparent,
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.black12,
+                      SlidableAction(
+                        onPressed: (val) {
+                          note.delete();
+                        },
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        icon: Icons.delete,
+                        label: 'Delete',
+                      ),
+                    ],
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      print("TAP TAP TAP");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return NoteViewer(note: note);
+                          },
+                        ),
+                      );
+                    },
+                    highlightColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.black12,
+                          ),
                         ),
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        RotatedBox(
-                          quarterTurns: 3,
-                          child: Text(noteDateView(note.createdOn)),
-                        ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              note.name,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
+                      child: Row(
+                        children: [
+                          RotatedBox(
+                            quarterTurns: 3,
+                            child: Text(noteDateView(note.createdOn)),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                note.name,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              note.archived ?? true
-                                  ? "Archived"
-                                  : "Not Archived",
-                              maxLines: 3,
-                            ),
-                          ],
-                        ),
-                      ],
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                note.archived ?? true
+                                    ? "Archived"
+                                    : "Not Archived",
+                                maxLines: 3,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
