@@ -47,22 +47,21 @@ class _NoteViewerState extends State<NoteViewer> {
         title: const Text("NoteDown"),
         actions: [
           PopupMenuButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.menu,
               color: Colors.black,
             ),
             itemBuilder: (context) => [
               const PopupMenuItem(
-                child: Text("Edit"),
                 value: 1,
+                child: Text("Edit"),
               ),
               const PopupMenuItem(
-                child: Text("Archive"),
                 value: 2,
+                child: Text("Archive"),
               ),
             ],
             onSelected: (value) {
-              print(value);
               switch (value) {
                 case 2:
                   {
@@ -76,10 +75,17 @@ class _NoteViewerState extends State<NoteViewer> {
       ),
       body: note.isMarkDown
           ? Markdown(data: note.content!)
-          : quill.QuillEditor.basic(
-              controller: _controller,
-              autoFocus: false,
-              readOnly: true,
+          : Padding(
+              padding: const EdgeInsets.only(
+                top: 20,
+                left: 20,
+                right: 20,
+              ),
+              child: quill.QuillEditor.basic(
+                controller: _controller,
+                autoFocus: false,
+                readOnly: true,
+              ),
             ),
     );
   }
