@@ -214,7 +214,7 @@ class _HomeViewState extends State<HomeView> {
                         'Markdown',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
-                      subtitle: const Text('Plain text with markdown syntax'),
+                      subtitle: const Text('Live styling as you type'),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
@@ -222,36 +222,6 @@ class _HomeViewState extends State<HomeView> {
                           MaterialPageRoute(
                             builder: (context) => const CreateNote(
                               isRichText: false,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.purple.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          Icons.visibility,
-                          color: Colors.purple.shade700,
-                        ),
-                      ),
-                      title: const Text(
-                        'Realtime Markdown',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: const Text('Live preview as you type'),
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CreateNote(
-                              isRichText: false,
-                              isRealtimeMarkdown: true,
                             ),
                           ),
                         );
