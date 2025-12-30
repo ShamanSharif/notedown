@@ -5,14 +5,17 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:notedown/controller/note_controller.dart';
 import 'package:notedown/model/note.dart';
+import 'package:notedown/view/realtime_markdown_editor.dart';
 
 class CreateNote extends StatefulWidget {
   final Note? note;
   final bool isRichText;
+  final bool isRealtimeMarkdown;
   const CreateNote({
     super.key,
     this.note,
     this.isRichText = false,
+    this.isRealtimeMarkdown = false,
   });
 
   @override
@@ -21,10 +24,11 @@ class CreateNote extends StatefulWidget {
 
 class _CreateNoteState extends State<CreateNote> {
   final TextEditingController titleController = TextEditingController();
-  final TextEditingController contentController = TextEditingController();
+  late TextEditingController contentController;
   final QuillController quillController = QuillController.basic();
 
   late bool isRichText;
+  late bool isRealtimeMarkdown;
   late Note? note;
 
   String title = "Untitled Document";
@@ -32,6 +36,15 @@ class _CreateNoteState extends State<CreateNote> {
   @override
   void initState() {
     isRichText = widget.isRichText;
+    isRealtimeMarkdown = widget.isRealtimeMarkdown;
+    
+    // Use MarkdownTextEditingController for realtime markdown styling
+    if (widget.isRealtimeMarkdown) {
+      contentController = MarkdownTextEditingController();
+    } else {
+      contentController = TextEditingController();
+    }
+    
     note = widget.note;
     if (note == null) {
       titleController.text = title;
@@ -63,7 +76,7 @@ class _CreateNoteState extends State<CreateNote> {
           updatedOn: DateTime.now(),
           name: titleController.text.isEmpty ? title : titleController.text,
           content: jsonEncode(quillController.document.toDelta().toJson()),
-          isMarkDown: !isRichText,
+          isMarkDown: false,
         );
         noteBox.add(newNote);
         setState(() {
@@ -73,13 +86,28 @@ class _CreateNoteState extends State<CreateNote> {
           contentController.addListener(_updateNote);
           quillController.addListener(_updateNote);
         });
+      } else if (isRealtimeMarkdown) {
+        Note newNote = Note(
+          createdOn: DateTime.now(),
+          updatedOn: DateTime.now(),
+          name: titleController.text.isEmpty ? title : titleController.text,
+          content: contentController.text,
+          isMarkDown: true,
+        );
+        noteBox.add(newNote);
+        setState(() {
+          note = newNote;
+          // Add listeners after note is created for auto-save
+          titleController.addListener(_updateNote);
+          contentController.addListener(_updateNote);
+        });
       } else {
         Note newNote = Note(
           createdOn: DateTime.now(),
           updatedOn: DateTime.now(),
           name: titleController.text.isEmpty ? title : titleController.text,
           content: contentController.text,
-          isMarkDown: !isRichText,
+          isMarkDown: true,
         );
         noteBox.add(newNote);
         setState(() {
@@ -108,6 +136,9 @@ class _CreateNoteState extends State<CreateNote> {
         jsonDecode(note!.content!),
       );
     }
+    // Determine if it's realtime markdown based on note content or flag
+    // For now, we'll use a simple heuristic: if content starts with certain patterns
+    // Or we can add a flag later. For now, assume if isMarkDown and we're in realtime mode
   }
 
   _updateNote() {
@@ -115,7 +146,7 @@ class _CreateNoteState extends State<CreateNote> {
       return;
     }
     // Debounce updates to prevent excessive saves
-    if (note!.isMarkDown) {
+    if (note!.isMarkDown || isRealtimeMarkdown) {
       note!.update(
         titleController.text.isEmpty ? title : titleController.text,
         contentController.text,
@@ -184,57 +215,69 @@ class _CreateNoteState extends State<CreateNote> {
           ),
         ],
       ),
-      body: isRichText
-          ? Column(
-              children: [
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: QuillEditor.basic(
-                        controller: quillController,
-                        config: QuillEditorConfig(
-                          padding: EdgeInsets.zero,
+      body: isRealtimeMarkdown
+          ? Container(
+              margin: const EdgeInsets.all(16),
+              child: RealtimeMarkdownEditor(
+                controller: contentController,
+                onChanged: (text) {
+                  if (note != null) {
+                    _updateNote();
+                  }
+                },
+              ),
+            )
+          : isRichText
+              ? Column(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: QuillEditor.basic(
+                            controller: quillController,
+                            config: QuillEditorConfig(
+                              padding: EdgeInsets.zero,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    border: Border(
-                      top: BorderSide(
-                        color: Colors.grey.shade200,
-                        width: 1,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.grey.shade200,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: QuillSimpleToolbar(
+                        controller: quillController,
+                        config: const QuillSimpleToolbarConfig(
+                          multiRowsDisplay: false,
+                        ),
                       ),
                     ),
+                  ],
+                )
+              : Container(
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: QuillSimpleToolbar(
-                    controller: quillController,
-                    config: const QuillSimpleToolbarConfig(
-                      multiRowsDisplay: false,
-                    ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: MarkdownWriter(contentController: contentController),
                   ),
                 ),
-              ],
-            )
-          : Container(
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: MarkdownWriter(contentController: contentController),
-              ),
-            ),
     );
   }
 }

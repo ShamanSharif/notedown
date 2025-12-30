@@ -116,39 +116,94 @@ class _NoteViewerState extends State<NoteViewer> {
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: MarkdownBody(
-                  data: note.content ?? '',
-                  styleSheet: MarkdownStyleSheet(
-                    p: TextStyle(
-                      fontSize: 16,
-                      height: 1.7,
-                      color: Colors.grey.shade800,
-                    ),
-                    h1: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      height: 1.3,
-                    ),
-                    h2: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      height: 1.3,
-                    ),
-                    h3: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      height: 1.3,
-                    ),
-                    code: TextStyle(
-                      backgroundColor: Colors.grey.shade100,
-                      fontFamily: 'monospace',
-                    ),
-                    codeblockDecoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
+              child: MarkdownBody(
+                data: note.content ?? '',
+                styleSheet: MarkdownStyleSheet(
+                  p: TextStyle(
+                    fontSize: 16,
+                    height: 1.7,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade200
+                        : Colors.grey.shade800,
+                  ),
+                  h1: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    height: 1.3,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black87,
+                  ),
+                  h2: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    height: 1.3,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black87,
+                  ),
+                  h3: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    height: 1.3,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black87,
+                  ),
+                  code: TextStyle(
+                    backgroundColor: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade800
+                        : Colors.grey.shade100,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade200
+                        : Colors.black87,
+                    fontFamily: 'monospace',
+                  ),
+                  codeblockDecoration: BoxDecoration(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade800
+                        : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  a: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  strong: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black87,
+                  ),
+                  em: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade200
+                        : Colors.grey.shade800,
+                  ),
+                  blockquote: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade300
+                        : Colors.grey.shade700,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  blockquoteDecoration: BoxDecoration(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade800
+                        : Colors.grey.shade100,
+                    border: Border(
+                      left: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 4,
+                      ),
                     ),
                   ),
+                  listBullet: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade200
+                        : Colors.grey.shade800,
+                  ),
                 ),
+              ),
               ),
             )
           : Container(

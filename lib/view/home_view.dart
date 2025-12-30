@@ -9,6 +9,7 @@ import '../controller/note_controller.dart';
 import '../model/note.dart';
 import 'archived_notes_view.dart';
 import 'create_note.dart';
+import 'settings_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({
@@ -134,6 +135,21 @@ class _HomeViewState extends State<HomeView> {
                   );
                 },
               ),
+              const Spacer(),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.settings_outlined),
+                title: const Text('Settings'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsView(),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -206,6 +222,36 @@ class _HomeViewState extends State<HomeView> {
                           MaterialPageRoute(
                             builder: (context) => const CreateNote(
                               isRichText: false,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.visibility,
+                          color: Colors.purple.shade700,
+                        ),
+                      ),
+                      title: const Text(
+                        'Realtime Markdown',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: const Text('Live preview as you type'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CreateNote(
+                              isRichText: false,
+                              isRealtimeMarkdown: true,
                             ),
                           ),
                         );
