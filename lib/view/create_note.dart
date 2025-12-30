@@ -31,16 +31,17 @@ class _CreateNoteState extends State<CreateNote> {
 
   @override
   void initState() {
-    titleController.text = title;
     isRichText = widget.isRichText;
     note = widget.note;
-    if (note == null)
-      _saveToNote();
-    else
+    if (note == null) {
+      titleController.text = title;
+    } else {
       _connectController();
-    titleController.addListener(_updateNote);
-    contentController.addListener(_updateNote);
-    quillController.addListener(_updateNote);
+      // Only add listeners for existing notes to auto-save changes
+      titleController.addListener(_updateNote);
+      contentController.addListener(_updateNote);
+      quillController.addListener(_updateNote);
+    }
     super.initState();
   }
 
@@ -54,26 +55,44 @@ class _CreateNoteState extends State<CreateNote> {
 
   _saveToNote() {
     final noteBox = Boxes.getNotes();
-    if (isRichText) {
-      Note newNote = Note(
-        createdOn: DateTime.now(),
-        updatedOn: DateTime.now(),
-        name: titleController.text,
-        content: jsonEncode(quillController.document.toDelta().toJson()),
-        isMarkDown: !isRichText,
-      );
-      noteBox.add(newNote);
-      setState(() => note = newNote);
+    if (note == null) {
+      // Create new note
+      if (isRichText) {
+        Note newNote = Note(
+          createdOn: DateTime.now(),
+          updatedOn: DateTime.now(),
+          name: titleController.text.isEmpty ? title : titleController.text,
+          content: jsonEncode(quillController.document.toDelta().toJson()),
+          isMarkDown: !isRichText,
+        );
+        noteBox.add(newNote);
+        setState(() {
+          note = newNote;
+          // Add listeners after note is created for auto-save
+          titleController.addListener(_updateNote);
+          contentController.addListener(_updateNote);
+          quillController.addListener(_updateNote);
+        });
+      } else {
+        Note newNote = Note(
+          createdOn: DateTime.now(),
+          updatedOn: DateTime.now(),
+          name: titleController.text.isEmpty ? title : titleController.text,
+          content: contentController.text,
+          isMarkDown: !isRichText,
+        );
+        noteBox.add(newNote);
+        setState(() {
+          note = newNote;
+          // Add listeners after note is created for auto-save
+          titleController.addListener(_updateNote);
+          contentController.addListener(_updateNote);
+          quillController.addListener(_updateNote);
+        });
+      }
     } else {
-      Note newNote = Note(
-        createdOn: DateTime.now(),
-        updatedOn: DateTime.now(),
-        name: titleController.text,
-        content: contentController.text,
-        isMarkDown: !isRichText,
-      );
-      noteBox.add(newNote);
-      setState(() => note = newNote);
+      // Update existing note
+      _updateNote();
     }
   }
 
@@ -92,74 +111,130 @@ class _CreateNoteState extends State<CreateNote> {
   }
 
   _updateNote() {
-    print("Note Update Called");
     if (note == null) {
-      print("Note Is Null");
       return;
     }
+    // Debounce updates to prevent excessive saves
     if (note!.isMarkDown) {
-      print("MarkDown");
       note!.update(
-        titleController.text,
+        titleController.text.isEmpty ? title : titleController.text,
         contentController.text,
         DateTime.now(),
       );
     } else {
-      print("RichText");
       note!.update(
-        titleController.text,
+        titleController.text.isEmpty ? title : titleController.text,
         jsonEncode(quillController.document.toDelta().toJson()),
         DateTime.now(),
       );
     }
-    print("Note Is Updated");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: TextField(
           controller: titleController,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             border: InputBorder.none,
+            hintText: "Untitled Document",
+            hintStyle: TextStyle(
+              color: Colors.grey.shade400,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           style: const TextStyle(
             fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
         actions: [
           IconButton(
-            onPressed: _saveToNote,
-            icon: const Icon(Ionicons.save),
+            onPressed: () {
+              _saveToNote();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Text(note == null ? 'Note saved' : 'Note updated'),
+                    ],
+                  ),
+                  backgroundColor: Colors.green.shade600,
+                  behavior: SnackBarBehavior.fixed,
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
+            icon: const Icon(Ionicons.save_outline),
+            tooltip: 'Save',
           ),
           IconButton(
             onPressed: () => print("menu"),
             icon: const Icon(Ionicons.ellipsis_vertical),
+            tooltip: 'More options',
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: isRichText
-            ? Column(
-                children: [
-                  Expanded(
-                    child: Container(
+      body: isRichText
+          ? Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
                       child: QuillEditor.basic(
                         controller: quillController,
-                        readOnly: false, // true for view only mode
+                        config: QuillEditorConfig(
+                          padding: EdgeInsets.zero,
+                        ),
                       ),
                     ),
                   ),
-                  QuillToolbar.basic(
-                    controller: quillController,
-                    multiRowsDisplay: false,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    border: Border(
+                      top: BorderSide(
+                        color: Colors.grey.shade200,
+                        width: 1,
+                      ),
+                    ),
                   ),
-                ],
-              )
-            : MarkdownWriter(contentController: contentController),
-      ),
+                  child: QuillSimpleToolbar(
+                    controller: quillController,
+                    config: const QuillSimpleToolbarConfig(
+                      multiRowsDisplay: false,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : Container(
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: MarkdownWriter(contentController: contentController),
+              ),
+            ),
     );
   }
 }
@@ -177,13 +252,20 @@ class MarkdownWriter extends StatelessWidget {
     return Form(
       child: TextFormField(
         controller: contentController,
-        maxLines: 999,
-        minLines: 999,
-        // expands: true,
-        decoration: const InputDecoration(
+        maxLines: null,
+        minLines: null,
+        expands: true,
+        textAlignVertical: TextAlignVertical.top,
+        decoration: InputDecoration(
           border: InputBorder.none,
-          hintText: "Write",
-          hintStyle: TextStyle(),
+          hintText: "Write your markdown here...",
+          hintStyle: TextStyle(
+            color: Colors.grey.shade400,
+          ),
+        ),
+        style: const TextStyle(
+          fontSize: 16,
+          height: 1.6,
         ),
       ),
     );

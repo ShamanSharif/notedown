@@ -3,7 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  pasteboard
+  file_selector_windows
   url_launcher_windows
 )
 

@@ -16,8 +16,8 @@ dependencies:
   hive_flutter: ^1.1.0
   flutter_markdown: ^0.6.17
   flutter_expandable_fab: ^2.0.0
-  flutter_quill: ^7.3.2
-  flutter_slidable: ^3.0.0
+  flutter_quill: ^11.5.0
+  flutter_slidable: ^4.0.0
 
 dev_dependencies:
   flutter_test:
